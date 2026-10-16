@@ -46,7 +46,7 @@ function GameboardContent() {
   const searchParams = useSearchParams();
   const boardId = searchParams.get("id") || "default";
 
-  const [boardProfile, setBoardProfile] = useState<{ name: string } | null>(null);
+  const [boardProfile, setBoardProfile] = useState<{ name: string; description?: string } | null>(null);
   const [groups, setGroups] = useState<Group[]>([]);
   const [games, setGames] = useState<GameCategory[]>([]);
   const [scores, setScores] = useState<ScoreMap>({});
@@ -57,9 +57,12 @@ function GameboardContent() {
     try {
       localStorage.setItem("active_gameboard_id", boardId);
 
-      const boards = readArray<{ id: string; name?: string }>("central_gameboards");
+      const boards = readArray<{ id: string; name?: string; description?: string }>("central_gameboards");
       const match = boards.find((board) => board.id === boardId);
-      setBoardProfile(match ? { name: match.name || "Game Score Matrix" } : null);
+      setBoardProfile(match ? {
+        name: match.name || "Game Score Matrix",
+        description: match.description,
+      } : null);
 
       const loadedGroups = readArray<Group>(`groups_${boardId}`);
       const loadedGames = readArray<GameCategory>(`games_${boardId}`);
@@ -203,7 +206,7 @@ function GameboardContent() {
         <header className="flex flex-col items-start justify-between gap-4 border-b pb-4 sm:flex-row sm:items-center">
           <div>
             <h1 className="text-2xl font-bold text-slate-900">🏆 {boardProfile?.name || "Game Score Matrix"}</h1>
-            <p className="text-xs text-slate-400">Board Tracking Hash Ref Key: {boardId}</p>
+            <p className="text-xs text-slate-400">{boardProfile?.description || `Board Tracking for ${boardProfile?.name || "Game Score Matrix"}.`}</p>
           </div>
           <div className="flex flex-wrap gap-2">
             <Link href={`/players?id=${encodeURIComponent(boardId)}`} className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700">
